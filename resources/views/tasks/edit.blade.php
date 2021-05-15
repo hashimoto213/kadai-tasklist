@@ -30,7 +30,7 @@
                 </div>
 
                 {!! Form::submit('編集', ['class' => 'btn btn-primary']) !!}
-
+   
             {!! Form::close() !!}
         </div>
     </div>

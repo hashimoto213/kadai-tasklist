@@ -15,13 +15,30 @@ class TasksController extends Controller
      */
     public function index()
     {
+        $data = [];
         
-        $tasks = Task::all();
-
-        // メッセージ一覧ビューでそれを表示
-        return view('tasks.index', [
-            'tasks' => $tasks,
-        ]);
+        // もし、ログイン済みなら
+        if(\Auth::check()){
+        
+            //   ログインユーザーを取得し、
+            $user = \Auth::user();
+            //   ユーザーのタスクデータを$tasksに代入
+            $tasks = $user->tasks()->orderBy('created_at','desc')->paginate(10);
+            
+            $data = [
+                    'user' => $user,
+                    'tasks' => $tasks,
+            ];
+            //   tasks.indexビューに引き渡す。
+            return view('tasks.index',$data);
+         
+        }
+        
+        // そうでなかったら
+        //   welcomeビューをreturnする。
+        return view('welcome', $data);
+        
+        
     }
 
     /**
@@ -53,10 +70,18 @@ class TasksController extends Controller
             'content' => 'required|max:10',
         ]);
         
-        $task = new Task;
-        $task->status = $request->status;    // 追加
-        $task->content = $request->content;
-        $task->save();
+        // $task = new Task;
+        // $task->user_id = \Auth::id(); // ログインユーザーのid
+        // $task->status = $request->status;    // 追加
+        // $task->content = $request->content;    // 追加
+        // $task->save();
+       
+        
+        $request->user()->tasks()->create([
+            'status' => $request->status,
+            'content' => $request->content,
+        ]);
+
         
         return redirect('/');
     }
@@ -70,6 +95,11 @@ class TasksController extends Controller
     public function show($id)
     {
         $task = Task::findOrFail($id);
+        
+        // TODO: もし、自分(=ログインユーザー)の$taskでなければ、トップページにリダイレクトする
+        if (\Auth::check()) {
+            return redirect('/');
+        }
         
         return view('tasks.show', [
             'task' => $task,
@@ -86,6 +116,11 @@ class TasksController extends Controller
     {
         $task = Task::findOrFail($id);
 
+        // TODO: もし、自分(=ログインユーザー)の$taskでなければ、トップページにリダイレクトする
+        if (\Auth::check()) {
+            return redirect('/');
+        }
+    
         return view('tasks.edit', [
             'task' => $task,
         ]);
@@ -107,6 +142,12 @@ class TasksController extends Controller
         ]);
         
         $task = Task::findOrFail($id);
+        
+        // TODO: もし、自分(=ログインユーザー)の$taskでなければ、トップページにリダイレクトする
+        if (\Auth::check()) {
+            return redirect('/');
+        }
+    
         //更新
         $task->status = $request->status;    // 追加
         $task->content = $request->content;
@@ -127,8 +168,18 @@ class TasksController extends Controller
     public function destroy($id)
     {
         $task = Task::findOrFail($id);
+        
+        // TODO: もし、自分(=ログインユーザー)の$taskでなければ、トップページにリダイレクトする
+        if (\Auth::check()) {
+            return redirect('/');
+        }
+    
         // メッセージを削除
-        $task->delete();
+        //$task->delete();
+        
+        if (\Auth::id() === $tasks->user_id) {
+            $tasks->delete();
+        }
         
         return redirect('/');
     }

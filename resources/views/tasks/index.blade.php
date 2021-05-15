@@ -2,6 +2,8 @@
 
 @section('content')
 
+    
+
 <h1>タスク一覧</h1>
 
     @if (count($tasks) > 0)
@@ -28,5 +30,9 @@
     @endif
 
     {!! link_to_route('tasks.create', '作成ページ', [], ['class' => 'btn btn-primary']) !!}
+    
+    {!! link_to_route('tasks.edit', '編集', ['task' => $task->id], ['class' => 'btn btn-light']) !!}
+    
+    
 
 @endsection

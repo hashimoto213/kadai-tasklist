@@ -27,9 +27,10 @@
                 </div>
 
                 {!! Form::submit('作成', ['class' => 'btn btn-primary']) !!}
-
             {!! Form::close() !!}
+            
         </div>
+        
     </div>
 
 @endsection
